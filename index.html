@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="AI-powered customer support chatbot for instant assistance"
+    >
+
+    <title>Nova AI | Smart Customer Assistant</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========NAVIGATION============ -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+            <div class="brand-icon">✦</div>
+
+            <div>
+                <h2>Nova AI</h2>
+                <span>Smart Assistant</span>
+            </div>
+        </div>
+
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            <span>Online</span>
+        </div>
+
+    </nav>
+
+
+    <!-- ========HERO SECTION============== -->
+
+    <main class="hero">
+
+        <div class="hero-content">
+
+            <div class="badge">
+                <span>✦</span>
+                AI-Powered Customer Support
+            </div>
+
+            <h1>
+                Get instant answers with
+                <span>Nova AI</span>
+            </h1>
+
+            <p>
+                Our intelligent retrieval-based chatbot helps website
+                visitors get quick answers about services, support,
+                working hours, pricing and more.
+            </p>
+
+            <div class="hero-buttons">
+
+                <button
+                    class="primary-btn"
+                    onclick="openChatbot()"
+                >
+                    Start Chat
+                    <span>→</span>
+                </button>
+
+                <button
+                    class="secondary-btn"
+                    onclick="scrollToFeatures()"
+                >
+                    Explore Features
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Hero Illustration -->
+
+        <div class="hero-visual">
+
+            <div class="orb orb-one"></div>
+            <div class="orb orb-two"></div>
+
+            <div class="ai-card">
+
+                <div class="ai-card-header">
+
+                    <div class="ai-avatar">
+                        ✦
+                    </div>
+
+                    <div>
+                        <strong>Nova AI</strong>
+                        <small>
+                            <span class="status-dot"></span>
+                            Online now
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="mini-message bot">
+                    Hello! 👋 How can I help you today?
+                </div>
+
+                <div class="mini-message user">
+                    Tell me about your services.
+                </div>
+
+                <div class="mini-message bot">
+                    Sure! I can help you with our services,
+                    pricing, support and more.
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- ==========FEATURES========= -->
+
+    <section class="features" id="features">
+
+        <div class="section-heading">
+
+            <span>WHY NOVA AI?</span>
+
+            <h2>
+                Smart support, available instantly.
+            </h2>
+
+            <p>
+                Designed to provide a smooth and engaging
+                customer experience.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <div class="feature-card">
+
+                <div class="feature-icon">⚡</div>
+
+                <h3>Instant Responses</h3>
+
+                <p>
+                    Get quick responses to common customer
+                    questions without waiting.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">🧠</div>
+
+                <h3>Smart Retrieval</h3>
+
+                <p>
+                    Predefined patterns help the chatbot
+                    identify user queries and provide relevant answers.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">💬</div>
+
+                <h3>Easy Conversation</h3>
+
+                <p>
+                    Simple chat interface with quick questions
+                    and natural message interaction.
+                </p>
+
+            </div>
+
+
+            <div class="feature-card">
+
+                <div class="feature-icon">📱</div>
+
+                <h3>Responsive Design</h3>
+
+                <p>
+                    Works smoothly across desktops, tablets
+                    and mobile devices.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ===========CHATBOT============ -->
+
+    <div
+        class="chatbot"
+        id="chatbot"
+    >
+
+        <!-- Chat Header -->
+
+        <div class="chat-header">
+
+            <div class="chat-profile">
+
+                <div class="chat-avatar">
+                    ✦
+                </div>
+
+                <div>
+
+                    <h3>Nova AI</h3>
+
+                    <span>
+                        <span class="status-dot"></span>
+                        Online • Instant replies
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="chat-actions">
+
+                <button
+                    onclick="clearChat()"
+                    title="Clear conversation"
+                >
+                    🗑
+                </button>
+
+                <button
+                    onclick="closeChatbot()"
+                    title="Close chatbot"
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Chat Messages -->
+
+        <div
+            class="chat-messages"
+            id="chatMessages"
+        >
+
+            <div class="welcome-message">
+
+                <div class="welcome-icon">
+                    ✦
+                </div>
+
+                <h3>Hello! 👋</h3>
+
+                <p>
+                    I'm Nova, your AI assistant.
+                    Ask me anything about our services.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Quick Questions -->
+
+        <div class="quick-section">
+
+            <span>Quick questions</span>
+
+            <div class="quick-buttons">
+
+                <button
+                    onclick="sendQuickMessage('What services do you provide?')"
+                >
+                    Services
+                </button>
+
+                <button
+                    onclick="sendQuickMessage('What are your working hours?')"
+                >
+                    Working hours
+                </button>
+
+                <button
+                    onclick="sendQuickMessage('How much does it cost?')"
+                >
+                    Pricing
+                </button>
+
+                <button
+                    onclick="sendQuickMessage('How can I contact you?')"
+                >
+                    Contact
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- Input -->
+
+        <div class="chat-input-area">
+
+            <div class="input-wrapper">
+
+                <input
+                    type="text"
+                    id="userInput"
+                    placeholder="Ask me anything..."
+                    autocomplete="off"
+                >
+
+                <button
+                    onclick="sendMessage()"
+                    class="send-btn"
+                    title="Send message"
+                >
+                    ↑
+                </button>
+
+            </div>
+
+            <small>
+                Nova AI may occasionally provide incorrect information.
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- Floating Button -->
+
+    <button
+        class="floating-chat"
+        id="chatButton"
+        onclick="openChatbot()"
+        aria-label="Open chatbot"
+    >
+        <span>✦</span>
+    </button>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        <div>
+            <strong>Nova AI</strong>
+            <span> • AI-Powered Customer Assistant</span>
+        </div>
+
+        <p>
+            CodeAlpha Internship • Task 4
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
