@@ -1,14 +1,19 @@
-/*NOVA AI - SMART RETRIEVAL CHATBOT
-   CodeAlpha Internship - Task 4*/
+/* =========================================
+   NOVA AI - COMPLETE CHATBOT
+========================================= */
 
 const chatbot = document.getElementById("chatbot");
 const chatButton = document.getElementById("chatButton");
 const chatMessages = document.getElementById("chatMessages");
 const userInput = document.getElementById("userInput");
+const voiceBtn = document.getElementById("voiceBtn");
 
-const CHAT_STORAGE_KEY = "nova_ai_chat_history";
+const STORAGE_KEY = "nova_ai_chat_history";
 
+
+// =========================================
 // OPEN / CLOSE
+// =========================================
 
 function openChatbot() {
     chatbot.style.display = "flex";
@@ -16,13 +21,15 @@ function openChatbot() {
     userInput.focus();
 }
 
-
 function closeChatbot() {
     chatbot.style.display = "none";
     chatButton.style.display = "flex";
 }
 
+
+// =========================================
 // SEND MESSAGE
+// =========================================
 
 function sendMessage() {
 
@@ -44,10 +51,15 @@ function sendMessage() {
 
         addMessage(response, "bot");
 
+        speakText(response);
+
     }, 600);
 }
 
+
+// =========================================
 // QUICK MESSAGE
+// =========================================
 
 function sendQuickMessage(message) {
 
@@ -57,25 +69,70 @@ function sendQuickMessage(message) {
 }
 
 
+// =========================================
 // ADD MESSAGE
+// =========================================
 
 function addMessage(message, sender, save = true) {
 
-    const messageElement = document.createElement("div");
+    if (sender === "bot") {
 
-    messageElement.classList.add("message");
+        const container = document.createElement("div");
 
-    if (sender === "user") {
-        messageElement.classList.add("user-message");
+        container.className = "bot-container";
+
+        const messageElement =
+            document.createElement("div");
+
+        messageElement.className =
+            "message bot-message";
+
+        messageElement.textContent = message;
+
+        const actions =
+            document.createElement("div");
+
+        actions.className =
+            "message-actions";
+
+        actions.innerHTML = `
+            <button onclick="copyMessage(this)" title="Copy">
+                📋
+            </button>
+
+            <button onclick="speakMessage(this)" title="Listen">
+                🔊
+            </button>
+
+            <button onclick="giveFeedback('up')" title="Helpful">
+                👍
+            </button>
+
+            <button onclick="giveFeedback('down')" title="Not helpful">
+                👎
+            </button>
+        `;
+
+        container.appendChild(messageElement);
+        container.appendChild(actions);
+
+        chatMessages.appendChild(container);
+
     } else {
-        messageElement.classList.add("bot-message");
+
+        const messageElement =
+            document.createElement("div");
+
+        messageElement.className =
+            "message user-message";
+
+        messageElement.textContent = message;
+
+        chatMessages.appendChild(messageElement);
     }
 
-    messageElement.textContent = message;
-
-    chatMessages.appendChild(messageElement);
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
 
     if (save) {
         saveMessage(message, sender);
@@ -83,22 +140,24 @@ function addMessage(message, sender, save = true) {
 }
 
 
+// =========================================
 // LOCAL STORAGE
+// =========================================
 
 function saveMessage(message, sender) {
 
-    let history =
+    const history =
         JSON.parse(
-            localStorage.getItem(CHAT_STORAGE_KEY)
+            localStorage.getItem(STORAGE_KEY)
         ) || [];
 
     history.push({
-        message: message,
-        sender: sender
+        message,
+        sender
     });
 
     localStorage.setItem(
-        CHAT_STORAGE_KEY,
+        STORAGE_KEY,
         JSON.stringify(history)
     );
 }
@@ -108,7 +167,7 @@ function loadChatHistory() {
 
     const history =
         JSON.parse(
-            localStorage.getItem(CHAT_STORAGE_KEY)
+            localStorage.getItem(STORAGE_KEY)
         );
 
     if (!history || history.length === 0) {
@@ -129,11 +188,13 @@ function loadChatHistory() {
 }
 
 
+// =========================================
 // CLEAR CHAT
+// =========================================
 
 function clearChat() {
 
-    localStorage.removeItem(CHAT_STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
 
     chatMessages.innerHTML = `
         <div class="welcome-message">
@@ -151,20 +212,22 @@ function clearChat() {
 
         </div>
     `;
-
-    userInput.focus();
 }
 
 
+// =========================================
 // TYPING INDICATOR
+// =========================================
 
 function showTyping() {
 
-    const typing = document.createElement("div");
+    const typing =
+        document.createElement("div");
 
     typing.id = "typingIndicator";
 
-    typing.classList.add("typing-indicator");
+    typing.className =
+        "typing-indicator";
 
     typing.innerHTML = `
         <span></span>
@@ -182,7 +245,9 @@ function showTyping() {
 function removeTyping() {
 
     const typing =
-        document.getElementById("typingIndicator");
+        document.getElementById(
+            "typingIndicator"
+        );
 
     if (typing) {
         typing.remove();
@@ -190,7 +255,254 @@ function removeTyping() {
 }
 
 
-// TEXT NORMALIZATION
+// =========================================
+// VOICE INPUT
+// =========================================
+
+let recognition = null;
+
+function startVoiceInput() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice input is not supported in this browser. " +
+            "Please use Google Chrome or Microsoft Edge."
+        );
+
+        return;
+    }
+
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+        return;
+    }
+
+    recognition =
+        new SpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.interimResults = false;
+
+    recognition.continuous = false;
+
+    recognition.onstart = function () {
+
+        voiceBtn.classList.add("listening");
+
+        voiceBtn.textContent = "🔴";
+    };
+
+    recognition.onresult =
+        function(event) {
+
+            const transcript =
+                event.results[0][0].transcript;
+
+            userInput.value = transcript;
+
+        };
+
+    recognition.onerror =
+        function() {
+
+            alert(
+                "Sorry, I couldn't understand your voice."
+            );
+
+        };
+
+    recognition.onend =
+        function() {
+
+            voiceBtn.classList.remove(
+                "listening"
+            );
+
+            voiceBtn.textContent = "🎤";
+
+            recognition = null;
+        };
+
+    recognition.start();
+}
+
+
+// =========================================
+// TEXT TO SPEECH
+// =========================================
+
+function speakText(text) {
+
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+    speech.rate = 1;
+
+    speech.pitch = 1;
+
+    window.speechSynthesis.speak(speech);
+}
+
+
+function speakMessage(button) {
+
+    const message =
+        button
+            .parentElement
+            .previousElementSibling
+            .textContent;
+
+    speakText(message);
+}
+
+
+// =========================================
+// COPY RESPONSE
+// =========================================
+
+function copyMessage(button) {
+
+    const message =
+        button
+            .parentElement
+            .previousElementSibling
+            .textContent;
+
+    navigator.clipboard.writeText(message);
+
+    button.textContent = "✅";
+
+    setTimeout(() => {
+        button.textContent = "📋";
+    }, 1200);
+}
+
+
+// =========================================
+// FEEDBACK
+// =========================================
+
+function giveFeedback(type) {
+
+    if (type === "up") {
+
+        alert(
+            "Thanks! 👍 Your feedback helps improve Nova AI."
+        );
+
+    } else {
+
+        alert(
+            "Thanks for your feedback. We'll try to improve!"
+        );
+    }
+}
+
+
+// =========================================
+// DOWNLOAD CHAT
+// =========================================
+
+function downloadChat() {
+
+    const history =
+        JSON.parse(
+            localStorage.getItem(STORAGE_KEY)
+        ) || [];
+
+    if (history.length === 0) {
+
+        alert("There is no chat history to download.");
+
+        return;
+    }
+
+    let text =
+        "NOVA AI - CHAT HISTORY\n";
+
+    text +=
+        "========================\n\n";
+
+    history.forEach(item => {
+
+        const name =
+            item.sender === "user"
+                ? "You"
+                : "Nova AI";
+
+        text +=
+            `${name}: ${item.message}\n\n`;
+
+    });
+
+    const blob =
+        new Blob(
+            [text],
+            { type: "text/plain" }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "nova-ai-chat-history.txt";
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+
+// =========================================
+// DARK / LIGHT MODE
+// =========================================
+
+function toggleTheme() {
+
+    document.body.classList.toggle("dark");
+
+    const darkMode =
+        document.body.classList.contains("dark");
+
+    localStorage.setItem(
+        "nova_theme",
+        darkMode ? "dark" : "light"
+    );
+}
+
+
+function loadTheme() {
+
+    const theme =
+        localStorage.getItem("nova_theme");
+
+    if (theme === "dark") {
+        document.body.classList.add("dark");
+    }
+}
+
+
+// =========================================
+// NORMALIZE TEXT
+// =========================================
 
 function normalizeText(text) {
 
@@ -202,21 +514,22 @@ function normalizeText(text) {
 }
 
 
-// KEYWORD MATCHING
-
 function containsAny(text, keywords) {
 
-    return keywords.some(keyword =>
-        text.includes(keyword)
+    return keywords.some(
+        keyword => text.includes(keyword)
     );
 }
 
 
-// SMART RETRIEVAL CHATBOT
+// =========================================
+// CHATBOT KNOWLEDGE
+// =========================================
 
 function getBotResponse(message) {
 
-    const input = normalizeText(message);
+    const input =
+        normalizeText(message);
 
 
     // GREETING
@@ -226,17 +539,16 @@ function getBotResponse(message) {
             "hello",
             "hi",
             "hey",
+            "hai",
             "good morning",
             "good afternoon",
-            "good evening",
-            "hai"
+            "good evening"
         ])
     ) {
 
         return (
             "Hello! 👋 Welcome to Nova AI. " +
-            "I'm here to help you with services, pricing, " +
-            "support, contact details and more."
+            "How can I help you today?"
         );
     }
 
@@ -247,15 +559,13 @@ function getBotResponse(message) {
         containsAny(input, [
             "how are you",
             "how r u",
-            "how are u",
-            "are you fine",
-            "are you okay"
+            "are you fine"
         ])
     ) {
 
         return (
             "I'm doing great! 😊 Thanks for asking. " +
-            "How can I help you today?"
+            "How can I help you?"
         );
     }
 
@@ -266,8 +576,7 @@ function getBotResponse(message) {
         containsAny(input, [
             "your name",
             "who are you",
-            "what are you called",
-            "what is your name"
+            "what are you called"
         ])
     ) {
 
@@ -284,15 +593,14 @@ function getBotResponse(message) {
             "about you",
             "about nova",
             "about this chatbot",
-            "what is this chatbot",
-            "tell me about yourself"
+            "what is this chatbot"
         ])
     ) {
 
         return (
             "Nova AI is a retrieval-based customer support chatbot " +
-            "designed to provide quick answers to common questions " +
-            "through predefined knowledge patterns."
+            "designed to provide quick answers using predefined " +
+            "knowledge patterns."
         );
     }
 
@@ -306,14 +614,13 @@ function getBotResponse(message) {
             "what do you offer",
             "what do you provide",
             "what can you do",
-            "what can you help",
-            "offerings"
+            "what can you help"
         ])
     ) {
 
         return (
-            "We provide smart customer support, instant information, " +
-            "service guidance, FAQ assistance and general customer help."
+            "We provide smart customer support, service guidance, " +
+            "instant information and FAQ assistance."
         );
     }
 
@@ -324,15 +631,14 @@ function getBotResponse(message) {
         containsAny(input, [
             "feature",
             "features",
-            "capabilities",
-            "what can this chatbot do"
+            "capabilities"
         ])
     ) {
 
         return (
-            "Nova AI includes instant responses, predefined query patterns, " +
-            "quick questions, typing indicators, chat history, clear chat " +
-            "and responsive design."
+            "Nova AI supports instant responses, smart retrieval, " +
+            "voice input, voice responses, chat history, feedback, " +
+            "dark mode and downloadable conversations."
         );
     }
 
@@ -346,40 +652,13 @@ function getBotResponse(message) {
             "business hours",
             "when are you open",
             "what time do you open",
-            "what time do you close",
-            "office hours"
+            "what time do you close"
         ])
     ) {
 
         return (
             "Our customer support is available Monday to Saturday, " +
             "from 9:00 AM to 6:00 PM."
-        );
-    }
-
-
-    // SATURDAY
-
-    if (
-        input.includes("saturday")
-    ) {
-
-        return (
-            "Yes! 😊 Our support service is available on Saturday, " +
-            "from 9:00 AM to 6:00 PM."
-        );
-    }
-
-
-    // SUNDAY
-
-    if (
-        input.includes("sunday")
-    ) {
-
-        return (
-            "Our regular support hours are Monday to Saturday, " +
-            "9:00 AM to 6:00 PM."
         );
     }
 
@@ -393,14 +672,13 @@ function getBotResponse(message) {
             "cost",
             "how much",
             "fee",
-            "charge",
-            "rate"
+            "charge"
         ])
     ) {
 
         return (
             "Our pricing depends on the service you choose. " +
-            "Please contact our support team for detailed pricing information."
+            "Please contact our support team for detailed pricing."
         );
     }
 
@@ -411,10 +689,8 @@ function getBotResponse(message) {
         containsAny(input, [
             "contact",
             "phone",
-            "telephone",
             "email",
             "mail",
-            "customer care",
             "reach you"
         ])
     ) {
@@ -432,8 +708,7 @@ function getBotResponse(message) {
         containsAny(input, [
             "location",
             "address",
-            "where are you",
-            "where is your office"
+            "where are you"
         ])
     ) {
 
@@ -444,41 +719,38 @@ function getBotResponse(message) {
     }
 
 
-    // SUPPORT / HELP
+    // SUPPORT
 
     if (
         containsAny(input, [
             "help",
             "support",
             "assistance",
-            "need assistance",
             "can you help"
         ])
     ) {
 
         return (
-            "Absolutely! 😊 I can help you with services, pricing, " +
-            "working hours, features, contact information and general questions."
+            "Absolutely! 😊 I can help with services, pricing, " +
+            "working hours, features, contact information and more."
         );
     }
 
 
-    // PROBLEM / COMPLAINT
+    // PROBLEM
 
     if (
         containsAny(input, [
             "problem",
             "issue",
             "complaint",
-            "not working",
-            "something went wrong"
+            "not working"
         ])
     ) {
 
         return (
             "I'm sorry you're experiencing a problem. 😔 " +
-            "Please contact our support team and describe the issue " +
-            "so we can assist you."
+            "Please contact our support team with the details."
         );
     }
 
@@ -489,14 +761,13 @@ function getBotResponse(message) {
         containsAny(input, [
             "feedback",
             "review",
-            "suggestion",
-            "rate your service"
+            "suggestion"
         ])
     ) {
 
         return (
-            "We really appreciate your feedback! ⭐ " +
-            "Your suggestions help us improve the customer experience."
+            "We appreciate your feedback! ⭐ " +
+            "Your suggestions help us improve."
         );
     }
 
@@ -507,8 +778,7 @@ function getBotResponse(message) {
         containsAny(input, [
             "joke",
             "funny",
-            "make me laugh",
-            "something funny"
+            "make me laugh"
         ])
     ) {
 
@@ -525,14 +795,12 @@ function getBotResponse(message) {
         containsAny(input, [
             "thank you",
             "thanks",
-            "thank",
             "appreciate it"
         ])
     ) {
 
         return (
-            "You're very welcome! 😊 " +
-            "I'm always happy to help."
+            "You're very welcome! 😊"
         );
     }
 
@@ -543,8 +811,7 @@ function getBotResponse(message) {
         containsAny(input, [
             "bye",
             "goodbye",
-            "see you",
-            "see ya"
+            "see you"
         ])
     ) {
 
@@ -554,24 +821,19 @@ function getBotResponse(message) {
     }
 
 
-    // DEFAULT FALLBACK
+    // FALLBACK
 
     return (
         "Hmm 🤔 I don't have a specific answer for that yet.\n\n" +
-        "Try asking me about:\n" +
-        "• Services\n" +
-        "• Pricing\n" +
-        "• Working hours\n" +
-        "• Features\n" +
-        "• Contact details\n" +
-        "• Support\n" +
-        "• Location\n" +
-        "• Or ask me for a joke! 😄"
+        "Try asking me about Services, Pricing, Working Hours, " +
+        "Features, Support, Contact, Location or ask me for a joke! 😄"
     );
 }
 
 
+// =========================================
 // ENTER KEY
+// =========================================
 
 userInput.addEventListener(
     "keydown",
@@ -585,23 +847,24 @@ userInput.addEventListener(
 );
 
 
-// SCROLL TO FEATURES
+// =========================================
+// SCROLL
+// =========================================
 
 function scrollToFeatures() {
 
-    const features =
-        document.getElementById("features");
-
-    if (features) {
-
-        features.scrollIntoView({
+    document
+        .getElementById("features")
+        .scrollIntoView({
             behavior: "smooth"
         });
-
-    }
 }
 
 
-// LOAD CHAT HISTORY
+// =========================================
+// LOAD
+// =========================================
 
 loadChatHistory();
+
+loadTheme();
